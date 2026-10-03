@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SubnetKeep · Benteng Jaringan TKJ</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#100e17;--stone:#1b1826;--stone2:#26213a;--rune:#8b6cff;--cyan:#3ef0d0;--torch:#ffb347;--red:#ff4d6d;--tx:#e8e4f5;--mut:#9a93b8;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{scroll-padding-top:70px}
+body{margin:0;background:#16132a;color:var(--tx);font:16px/1.6 "Share Tech Mono",ui-monospace,monospace;background-image:radial-gradient(ellipse at 12% 18%,rgba(80,150,60,.22),transparent 38%),radial-gradient(ellipse at 88% 70%,rgba(80,150,60,.18),transparent 42%),linear-gradient(rgba(62,240,208,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(62,240,208,.04) 1px,transparent 1px);background-size:auto,auto,32px 32px,32px 32px}
+h1,h2,h3{font-family:Cinzel,Georgia,serif;margin:0 0 .5em;letter-spacing:.03em}
+h2{font-size:1.7rem;color:var(--torch)}h3{color:var(--cyan);font-size:1.1rem}
+main{max-width:920px;margin:auto;padding:0 16px 60px}
+section{padding-top:36px}
+
+/* NAV */
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:rgba(16,14,23,.92);border-bottom:1px solid var(--stone2);display:flex;gap:6px;overflow-x:auto;padding:8px 12px}
+nav a{color:var(--mut);text-decoration:none;padding:6px 12px;border:1px solid var(--stone2);border-radius:4px;white-space:nowrap;font-size:.9rem}
+nav a:hover,nav a:focus-visible{color:var(--cyan);border-color:var(--cyan);outline:none}
+
+/* HERO */
+.hero{text-align:center;padding:48px 0 12px}
+.hero h1{font-size:clamp(2rem,8vw,3.6rem);font-weight:800;color:var(--tx);text-shadow:0 0 18px var(--rune)}
+.glitch{position:relative;display:inline-block}
+.glitch::before,.glitch::after{content:attr(data-t);position:absolute;left:0;top:0;width:100%;overflow:hidden}
+.glitch::before{color:var(--cyan);animation:gl 3.2s infinite steps(1);clip-path:inset(0 0 60% 0)}
+.glitch::after{color:var(--red);animation:gl 3.2s infinite steps(1) reverse;clip-path:inset(60% 0 0 0)}
+@keyframes gl{0%,90%,100%{transform:none;opacity:0}92%{transform:translate(-3px,1px);opacity:.8}96%{transform:translate(3px,-1px);opacity:.8}}
+
+/* CARDS */
+.card{background:var(--stone);border:1px solid var(--stone2);border-left:3px solid var(--rune);padding:16px 18px;margin:12px 0;position:relative}
+.card::before{content:"";position:absolute;left:0;right:0;top:-9px;height:10px;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2212%22%3E%3Cpath%20d%3D%22M2%2012L4%202L6%2012ZM9%2012L12%204L15%2012ZM19%2012L21%200L24%2012ZM28%2012L31%205L33%2012ZM35%2012L37%203L39%2012Z%22%20fill%3D%22%234a9a3c%22/%3E%3Cpath%20d%3D%22M0%2011h40v1H0z%22%20fill%3D%22%232f6a2a%22/%3E%3C/svg%3E") repeat-x;pointer-events:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.grid .card{margin:0}
+
+/* INPUTS */
+button,select,input{font:inherit;color:var(--tx);background:var(--stone2);border:1px solid var(--rune);padding:8px 12px;border-radius:3px}
+button{cursor:pointer;position:relative;overflow:hidden}button:hover{background:var(--rune)}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.btn{background:var(--torch);color:#1b1000;border-color:var(--torch);font-weight:bold}.btn:hover{background:#ffc873}
+
+/* TERMINAL */
+.ip{color:var(--cyan)}
+.term{background:#07060b;border:1px solid var(--cyan);padding:12px;height:320px;overflow:auto;white-space:pre-wrap;font-size:.9rem;color:#b8ffe9;cursor:text}
+.term-prompt{display:flex;gap:6px;border-top:1px dashed var(--stone2);margin-top:6px;padding-top:6px}
+.term-prompt span{color:var(--torch);flex:none}
+.term-prompt input{flex:1;background:transparent;border:0;outline:none;color:var(--torch);min-width:0}
+.ok{color:#5dff9a}.bad{color:var(--red)}
+
+/* QUIZ */
+.opt{display:block;width:100%;text-align:left;margin:6px 0;transition:background .2s,border-color .2s}
+.opt.right{background:#1d5a3a;border-color:#5dff9a;box-shadow:0 0 14px rgba(42,107,255,.5)}
+.opt.wrong{background:#5a1d2b;border-color:var(--red)}
+.bar{height:8px;background:var(--stone2);margin:8px 0;border-radius:4px}
+.bar-fill{display:block;height:100%;background:var(--cyan);width:0;transition:width .5s;border-radius:4px}
+.grade{font:800 3.5rem Cinzel,serif;color:var(--torch);text-shadow:0 0 20px var(--torch);display:block;margin:.25em 0}
+
+/* PORTAL LINKS */
+.links a{display:inline-block;margin:4px 6px 4px 0;color:var(--cyan);border:1px solid var(--cyan);padding:8px 14px;text-decoration:none;border-radius:3px}
+.links a:hover{background:var(--cyan);color:#062}
+small,.mut{color:var(--mut)}
+
+/* ===== GATE ===== */
+#gate{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+.door{position:absolute;top:0;bottom:0;width:50%;background:repeating-linear-gradient(0deg,#1b1826 0 46px,#141220 46px 48px);border:2px solid var(--stone2);transition:transform 1.2s cubic-bezier(.7,0,.3,1);z-index:-1}
+.door-l{left:0}.door-r{right:0}
+.gate-open .door-l{transform:translateX(-100%)}
+.gate-open .door-r{transform:translateX(100%)}
+.gate-open .gate-box{opacity:0;transform:translateY(-60px) scale(1.1);transition:opacity 1s,transform 1s}
+.gate-box{max-width:520px}
+#boot{min-height:110px;color:var(--cyan);text-align:left;font-size:.9rem;margin:0 0 12px}
+
+/* GATE GLOW */
+#gate::after{content:"";position:absolute;left:0;right:0;bottom:0;height:50%;background:radial-gradient(ellipse at 50% 100%,rgba(42,107,255,.4),transparent 70%);animation:pulse 2s infinite alternate;z-index:-1;pointer-events:none}
+@keyframes pulse{from{opacity:.55}to{opacity:1}}
+
+/* FIRE */
+.fire{position:relative;width:150px;height:120px;margin:0 auto 4px;filter:drop-shadow(0 0 18px #2a6bff)}
+.fire i{position:absolute;bottom:0;left:50%;width:36px;height:var(--h);margin-left:calc(var(--x) - 18px);background:radial-gradient(ellipse at 50% 85%,#eafcff 0,#3ef0d0 25%,#2a6bff 60%,transparent 74%);border-radius:50% 50% 50% 50%/75% 75% 25% 25%;filter:blur(2px);transform-origin:50% 100%;animation:burn var(--d) infinite ease-in-out alternate;mix-blend-mode:screen}
+.fire::after{content:"";position:absolute;left:10%;right:10%;bottom:-6px;height:14px;background:radial-gradient(ellipse,#2a6bff,transparent 70%);filter:blur(4px)}
+@keyframes burn{0%{transform:scale(1,.88) rotate(-4deg)}100%{transform:scale(.82,1.16) rotate(4deg)}}
+.fire.s{width:36px;height:46px;margin:0;filter:drop-shadow(0 0 10px #2a6bff)}
+.fire.s i{width:16px;margin-left:calc(var(--x) - 8px)}.fire.s::after{display:none}
+
+/* LOGO ROW */
+.glrow{display:flex;gap:12px;justify-content:center;margin-bottom:8px}
+.gl{width:72px;height:72px}
+.slot{width:72px;height:72px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:4px}
+.slot img{width:100%;height:100%;object-fit:contain}
+
+/* SIDE TORCHES */
+.sc{position:fixed;top:40%;width:36px;pointer-events:none;z-index:4}
+.sc.l{left:2px}.sc.r{right:2px}
+.sc b{display:block;width:10px;height:28px;background:#3a3350;margin:-4px auto 0;border-radius:2px}
+
+/* HERO ART */
+.heroart{display:flex;justify-content:center;align-items:flex-end;gap:12px;margin-bottom:14px}
+.fig{width:70px;height:116px;flex:none;filter:drop-shadow(0 0 8px #2a6bff)}
+.fig.r{transform:scaleX(-1)}
+.logos-hero{display:flex;gap:16px;justify-content:center;align-items:center}
+.slot-hero{width:96px;height:96px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:4px}
+.slot-hero img{width:100%;height:100%;object-fit:contain}
+svg.logo-lg{width:96px;height:96px}
+
+footer{text-align:center;padding-top:40px;color:var(--mut);font-size:.85rem}
+@media(max-width:480px){.fig{width:52px;height:86px}.logos-hero svg,.slot-hero{width:76px;height:76px}.heroart{gap:6px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- SVG Symbols -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="tkj3" viewBox="0 0 100 100">
+    <polygon points="50,4 90,27 90,73 50,96 10,73 10,27" fill="#1b1826" stroke="#3ef0d0" stroke-width="3"/>
+    <polygon points="50,14 81,32 81,68 50,86 19,68 19,32" fill="none" stroke="#2a6bff" stroke-width="1.5"/>
+    <path d="M22 36h10v-8M78 64H68v8" stroke="#8b6cff" stroke-width="2" fill="none"/>
+    <circle cx="32" cy="28" r="2.5" fill="#3ef0d0"/>
+    <circle cx="68" cy="72" r="2.5" fill="#3ef0d0"/>
+    <text x="50" y="47" text-anchor="middle" font-family="Cinzel,Georgia,serif" font-weight="800" font-size="20" fill="#e8e4f5">TKJ</text>
+    <text x="50" y="72" text-anchor="middle" font-family="Cinzel,Georgia,serif" font-weight="800" font-size="22" fill="#ffb347">3</text>
+  </symbol>
+  <symbol id="sis1" viewBox="0 0 60 100">
+    <path d="M52 21L57 3" stroke="#2a6bff" stroke-width="7" stroke-opacity=".35" stroke-linecap="round"/>
+    <path d="M52 21L57 3" stroke="#cfe8ff" stroke-width="3" stroke-linecap="round"/>
+    <path d="M46 24l11-7" stroke="#ffb347" stroke-width="3"/>
+    <path d="M40 33L51 22M20 33L11 52" stroke="#f2f2f8" stroke-width="7" stroke-linecap="round"/>
+    <rect x="18" y="28" width="24" height="34" rx="5" fill="#f2f2f8"/>
+    <circle cx="24" cy="36" r="2.5" fill="#3ef0d0"/>
+    <rect x="19" y="60" width="10" height="30" fill="#4a4f6a"/>
+    <rect x="31" y="60" width="10" height="30" fill="#4a4f6a"/>
+    <rect x="17" y="88" width="13" height="6" rx="2" fill="#111"/>
+    <rect x="30" y="88" width="13" height="6" rx="2" fill="#111"/>
+    <circle cx="30" cy="16" r="10" fill="#e8b98f"/>
+    <path d="M19 15a11 11 0 0 1 22 0c-5-4-17-4-22 0z" fill="#2b2130"/>
+    <circle cx="51" cy="22" r="3.5" fill="#e8b98f"/>
+  </symbol>
+  <symbol id="sis2" viewBox="0 0 60 100">
+    <path d="M52 21L57 3" stroke="#2a6bff" stroke-width="7" stroke-opacity=".35" stroke-linecap="round"/>
+    <path d="M52 21L57 3" stroke="#cfe8ff" stroke-width="3" stroke-linecap="round"/>
+    <path d="M46 24l11-7" stroke="#ffb347" stroke-width="3"/>
+    <path d="M40 33L51 22M20 33L11 52" stroke="#f2f2f8" stroke-width="7" stroke-linecap="round"/>
+    <rect x="18" y="28" width="24" height="32" rx="5" fill="#f2f2f8"/>
+    <circle cx="24" cy="36" r="2.5" fill="#ff4d6d"/>
+    <path d="M18 58h24l5 24H13z" fill="#4a4f6a"/>
+    <rect x="21" y="80" width="6" height="12" fill="#e8b98f"/>
+    <rect x="33" y="80" width="6" height="12" fill="#e8b98f"/>
+    <rect x="18" y="90" width="11" height="5" rx="2" fill="#111"/>
+    <rect x="31" y="90" width="11" height="5" rx="2" fill="#111"/>
+    <path d="M18 15a12 12 0 0 1 24 0v24h-5V20H23v19h-5z" fill="#4a2b1e"/>
+    <circle cx="30" cy="16" r="10" fill="#e8b98f"/>
+    <path d="M19 15a11 11 0 0 1 22 0c-6-5-16-5-22 0z" fill="#4a2b1e"/>
+    <circle cx="51" cy="22" r="3.5" fill="#e8b98f"/>
+  </symbol>
+</svg>
+
+<!-- GATE -->
+<div id="gate">
+  <div class="door door-l"></div>
+  <div class="door door-r"></div>
+  <div class="gate-box">
+    <div class="fire" aria-hidden="true">
+      <i style="--x:-44px;--h:50px;--d:.8s"></i>
+      <i style="--x:-22px;--h:72px;--d:.6s"></i>
+      <i style="--x:0px;--h:98px;--d:.9s"></i>
+      <i style="--x:22px;--h:72px;--d:.7s"></i>
+      <i style="--x:44px;--h:50px;--d:.85s"></i>
+    </div>
+    <div class="glrow">
+      <svg class="gl" role="img" aria-label="Logo TKJ 3"><use href="#tkj3"/></svg>
+      <div class="slot" id="gateSlot" title="SMKN 6 Balikpapan">
+        <img alt="Logo SMKN 6" src="./logo-smkn6.png">
+      </div>
+    </div>
+    <h1 style="font-size:1.8rem;margin:.3em 0 .5em;text-shadow:0 0 18px var(--rune)">SubnetKeep</h1>
+    <pre id="boot"></pre>
+    <button class="btn" id="enterBtn" style="display:none">Masuk ke Dungeon</button>
+  </div>
+</div>
+
+<!-- SIDE TORCHES -->
+<div class="sc l" aria-hidden="true">
+  <div class="fire s"><i style="--x:-8px;--h:22px;--d:.7s"></i><i style="--x:0px;--h:36px;--d:.9s"></i><i style="--x:8px;--h:22px;--d:.8s"></i></div>
+  <b></b>
+</div>
+<div class="sc r" aria-hidden="true">
+  <div class="fire s"><i style="--x:-8px;--h:22px;--d:.8s"></i><i style="--x:0px;--h:36px;--d:.7s"></i><i style="--x:8px;--h:22px;--d:.9s"></i></div>
+  <b></b>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#materi">Materi</a>
+  <a href="#lab">Lab Jaringan</a>
+  <a href="#trouble">Troubleshooting</a>
+  <a href="#kuis">Kuis</a>
+  <a href="#portal">Portal Browser</a>
+</nav>
+
+<main>
+<!-- HERO -->
+<div class="hero">
+  <div class="heroart">
+    <svg class="fig" role="img" aria-label="Siswa SMK membawa pedang"><use href="#sis1"/></svg>
+    <div class="logos-hero">
+      <svg class="logo-lg" role="img" aria-label="Logo TKJ 3"><use href="#tkj3"/></svg>
+      <div class="slot-hero" id="heroSlot" title="SMKN 6 Balikpapan">
+        <img alt="Logo SMKN 6" src="./logo-smkn6.png">
+      </div>
+    </div>
+    <svg class="fig r" role="img" aria-label="Siswi SMK membawa pedang"><use href="#sis2"/></svg>
+  </div>
+  <h1><span class="glitch" data-t="SubnetKeep">SubnetKeep</span></h1>
+  <p class="mut">Benteng belajar jaringan TKJ: kuasai IP, ping, gateway, dan DNS untuk keluar dari dungeon hidup-hidup.</p>
+  <p><small>Dibuat oleh siswa/siswi SMK kelas 11 TKJ 3 · SMKN 6 Balikpapan</small></p>
+</div>
+
+<!-- MATERI -->
+<section id="materi">
+  <h2>Materi</h2>
+  <div class="grid">
+    <div class="card"><h3>Alamat IP</h3><p>Identitas perangkat di jaringan. IPv4 = 32 bit, ditulis 4 oktet, contoh <span class="ip">192.168.1.23</span>. Subnet mask (misal 255.255.255.0 atau /24) memisahkan bagian jaringan dan bagian host.</p></div>
+    <div class="card"><h3>Ping</h3><p>Perintah untuk mengecek apakah host bisa dijangkau, memakai paket ICMP. Hasilnya menampilkan waktu balasan (ms) dan paket yang hilang.</p></div>
+    <div class="card"><h3>Gateway &amp; DNS</h3><p>Gateway adalah pintu keluar jaringan lokal (biasanya router). DNS mengubah nama domain, misalnya google.com, menjadi alamat IP.</p></div>
+    <div class="card"><h3>Perangkat Keras</h3><p>NIC (kartu jaringan), kabel UTP + konektor RJ45, switch, router, access point, dan modem. Kabel straight untuk PC ke switch, crossover untuk perangkat sejenis.</p></div>
+    <div class="card"><h3>Perangkat Lunak</h3><p>Sistem operasi (Windows, Linux), driver NIC, tools jaringan (ping, ipconfig, nslookup, tracert), dan aplikasi monitoring seperti Wireshark.</p></div>
+    <div class="card"><h3>K3LH</h3><p>Keselamatan, Kesehatan Kerja, dan Lingkungan Hidup. Matikan &amp; cabut listrik sebelum membongkar, pakai gelang antistatik, rapikan kabel agar tidak membuat tersandung, dan buang limbah elektronik pada tempatnya.</p></div>
+  </div>
+</section>
+
+<!-- LAB -->
+<section id="lab">
+  <h2>Lab Jaringan</h2>
+  <div class="card">
+    <h3>Informasi jaringan (simulasi)</h3>
+    <p>IP: <span class="ip">192.168.1.23</span> · Mask: 255.255.255.0<br>Gateway: <span class="ip">192.168.1.1</span> · DNS: <span class="ip">8.8.8.8</span>, <span class="ip">1.1.1.1</span></p>
+    <p>Tes ping cepat:</p>
+    <button onclick="quickPing('192.168.1.1')">Ping Gateway</button>
+    <button onclick="quickPing('8.8.8.8')">Ping DNS 8.8.8.8</button>
+    <button onclick="quickPing('1.1.1.1')">Ping DNS 1.1.1.1</button>
+    <button onclick="quickPing('google.com')">Ping google.com</button>
+    <p><input id="pinghost" placeholder="IP / domain" style="width:60%">
+    <button class="btn" onclick="customPing()">Ping</button></p>
+    <p><small class="mut">Browser tidak bisa mengirim ICMP asli, jadi hasil ping ini simulasi untuk latihan.</small></p>
+  </div>
+  <div class="card">
+    <h3>Command Prompt</h3>
+    <div class="term" id="term" onclick="document.getElementById('termInput').focus()">
+      <div id="termLog">SubnetKeep Terminal v1.0&#10;Ketik "help" untuk bantuan. Coba: ipconfig, ping google.com, tracert google.com&#10;</div>
+      <div class="term-prompt">
+        <span>C:\&gt;</span>
+        <input id="termInput" autocomplete="off" spellcheck="false" onkeydown="termKey(event)">
+      </div>
+    </div>
+    <small class="mut">Coba: help · ipconfig · ipconfig /all · ping 192.168.1.1 · nslookup google.com · tracert google.com · cls</small>
+  </div>
+</section>
+
+<!-- TROUBLESHOOTING -->
+<section id="trouble">
+  <h2>Uji Troubleshooting</h2>
+  <div id="tbox" class="card"></div>
+</section>
+
+<!-- KUIS -->
+<section id="kuis">
+  <h2>Kuis</h2>
+  <div id="qbox" class="card"></div>
+</section>
+
+<!-- PORTAL -->
+<section id="portal">
+  <h2>Portal Browser</h2>
+  <div class="card links">
+    <p>Masuk ke browser lewat tautan berikut:</p>
+    <a href="https://youtu.be/jr_0noNKT_w" target="_blank" rel="noopener">Video jaringan komputer</a>
+    <a href="https://claude.ai" target="_blank" rel="noopener">Claude</a>
+    <a href="https://www.canva.com" target="_blank" rel="noopener">Canva AI</a>
+    <a href="https://www.netacad.com" target="_blank" rel="noopener">Cisco NetAcad</a>
+    <p>
+      <button onclick="copyLink()">Salin link web</button>
+      <small class="mut" id="cpm">Web ini jalan di Firefox, Chrome, Edge, Safari, atau browser apa pun.</small>
+    </p>
+  </div>
+</section>
+
+<footer><small>SubnetKeep · Dibuat oleh siswa/siswi SMK kelas 11 TKJ 3, SMKN 6 Balikpapan.<br>Taklukkan jaringan, satu ping per langkah.</small></footer>
+</main>
+
+<script>
+// ──────────────── UTILS ────────────────
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const rand  = (a,b) => Math.round(a + Math.random()*(b-a));
+const sh    = arr => arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]);
+
+
+// ──────────────── GATE BOOT ────────────────
+(async()=>{
+  const LINES=[
+    '> memindai jaringan dungeon...',
+    '> gateway 192.168.1.1 ... OK',
+    '> DNS 8.8.8.8 ... OK',
+    '> api biru menyala. pintu terbuka.'
+  ];
+  const boot=document.getElementById('boot');
+  for(const line of LINES){
+    for(const ch of line){ boot.textContent+=ch; await sleep(18); }
+    boot.textContent+='\n';
+    await sleep(200);
+  }
+  document.getElementById('enterBtn').style.display='inline-block';
+  document.getElementById('enterBtn').focus();
+})();
+
+document.getElementById('enterBtn').onclick=()=>{
+  const gate=document.getElementById('gate');
+  gate.classList.add('gate-open');
+  setTimeout(()=>{ gate.style.display='none'; },1300);
+};
+
+// ──────────────── PING SIMULATOR ────────────────
+const KNOWN={
+  '192.168.1.1':[1,4],'192.168.1.23':[0,1],'127.0.0.1':[0,1],
+  '8.8.8.8':[12,28],'1.1.1.1':[10,24],'google.com':[14,32],'youtube.com':[15,30]
+};
+const DNS_MAP={'google.com':'142.250.190.46','youtube.com':'142.250.190.78','kemdikbud.go.id':'103.7.4.43'};
+
+let pingBusy=false;
+async function runPing(host){
+  if(pingBusy) return; pingBusy=true;
+  const isDom=/[a-z]/i.test(host)&&!/^\d/.test(host);
+  let ip=host;
+  if(isDom){ ip=DNS_MAP[host]||null; if(!ip){termPrint(`Ping request could not find host ${host}.`);pingBusy=false;return;} }
+  const k=KNOWN[host]||KNOWN[ip];
+  termPrint(`\nPinging ${host}${isDom?' ['+ip+']':''} with 32 bytes of data:`);
+  let ok=0,ts=[];
+  for(let i=0;i<4;i++){
+    await sleep(450);
+    if(!k){termPrint('Request timed out.');continue;}
+    const t=rand(k[0],k[1]);ok++;ts.push(t);
+    termPrint(`Reply from ${ip}: bytes=32 time=${t}ms TTL=${isDom?117:64}`);
+  }
+  termPrint(`\nPing statistics for ${ip}:\n    Packets: Sent = 4, Received = ${ok}, Lost = ${4-ok} (${(4-ok)*25}% loss)`);
+  if(ok) termPrint(`Approximate round trip: Min=${Math.min(...ts)}ms, Max=${Math.max(...ts)}ms, Avg=${Math.round(ts.reduce((a,b)=>a+b,0)/ts.length)}ms`);
+  pingBusy=false;
+}
+function quickPing(h){ runPing(h); }
+function customPing(){ const h=document.getElementById('pinghost').value.trim(); if(h) runPing(h); }
+document.getElementById('pinghost').onkeydown=e=>{ if(e.key==='Enter') customPing(); };
+
+// ──────────────── TERMINAL ────────────────
+const IPCFG=`\nWindows IP Configuration\n\nEthernet adapter Ethernet:\n   IPv4 Address. . . . . . . : 192.168.1.23\n   Subnet Mask . . . . . . . : 255.255.255.0\n   Default Gateway . . . . . : 192.168.1.1`;
+const IPCFG_ALL=IPCFG+`\n   DNS Servers . . . . . . . : 8.8.8.8\n                               1.1.1.1\n   Physical Address. . . . . : 00-1A-2B-3C-4D-5E\n   DHCP Enabled. . . . . . . : Yes`;
+const HELP=`Perintah yang tersedia:\n  ipconfig          Info jaringan dasar\n  ipconfig /all     Info jaringan lengkap\n  ping <ip/host>    Ping host\n  nslookup <domain> Cari IP dari nama domain\n  tracert <domain>  Lacak rute ke host\n  cls               Bersihkan layar\n  help              Tampilkan bantuan`;
+
+let termBusy=false,cmdHist=[],histIdx=-1;
+
+function termPrint(txt){
+  const log=document.getElementById('termLog');
+  log.textContent+=txt+'\n';
+  document.getElementById('term').scrollTop=9999;
+}
+async function termRun(raw){
+  if(termBusy) return; termBusy=true;
+  const cmd=raw.trim().toLowerCase();
+  termPrint('C:\\> '+raw.trim());
+  if(!cmd){termBusy=false;return;}
+  if(cmd==='cls'){document.getElementById('termLog').textContent='';termBusy=false;return;}
+  if(cmd==='help'){termPrint(HELP);termBusy=false;return;}
+  if(cmd==='ipconfig'){termPrint(IPCFG);termBusy=false;return;}
+  if(cmd==='ipconfig /all'){termPrint(IPCFG_ALL);termBusy=false;return;}
+  if(cmd.startsWith('ping ')){
+    const h=raw.trim().split(' ')[1];
+    if(!h){termPrint('Usage: ping <ip atau domain>');termBusy=false;return;}
+    await runPingTerm(h);termBusy=false;return;
+  }
+  if(cmd.startsWith('nslookup ')){
+    const d=raw.trim().split(' ')[1];
+    const ip=DNS_MAP[d];
+    termPrint(ip?`Server:  dns.google\nAddress: 8.8.8.8\n\nNon-authoritative answer:\nName:    ${d}\nAddress: ${ip}`:`Server:  dns.google\nAddress: 8.8.8.8\n\n*** dns.google can't find ${d}: Non-existent domain`);
+    termBusy=false;return;
+  }
+  if(cmd.startsWith('tracert ')){
+    const d=raw.trim().split(' ')[1];
+    termPrint(`\nTracing route to ${d} over a maximum of 30 hops:\n`);
+    const hops=[['192.168.1.1',1,2,1],['10.10.1.1',8,12,9],['203.0.113.1',24,30,26],['8.8.8.8',28,35,29]];
+    for(let i=0;i<hops.length;i++){
+      await sleep(400);
+      const [ip,a,b,c]=hops[i];
+      termPrint(`  ${i+1}    ${a} ms   ${b} ms   ${c} ms  ${ip}`);
+    }
+    termPrint('\nTrace complete.');
+    termBusy=false;return;
+  }
+  termPrint(`'${raw.trim()}' is not recognized as an internal or external command.\nKetik "help" untuk melihat daftar perintah.`);
+  termBusy=false;
+}
+async function runPingTerm(host){
+  const isDom=/[a-z]/i.test(host)&&!/^\d/.test(host);
+  let ip=host;
+  if(isDom){ ip=DNS_MAP[host]||null; if(!ip){termPrint(`Ping request could not find host ${host}.`);return;} }
+  const k=KNOWN[host]||KNOWN[ip];
+  termPrint(`\nPinging ${host}${isDom?' ['+ip+']':''} with 32 bytes of data:`);
+  let ok=0,ts=[];
+  for(let i=0;i<4;i++){
+    await sleep(450);
+    if(!k){termPrint('Request timed out.');continue;}
+    const t=rand(k[0],k[1]);ok++;ts.push(t);
+    termPrint(`Reply from ${ip}: bytes=32 time=${t}ms TTL=${isDom?117:64}`);
+  }
+  termPrint(`\nPing statistics for ${ip}:\n    Packets: Sent = 4, Received = ${ok}, Lost = ${4-ok} (${(4-ok)*25}% loss)`);
+  if(ok) termPrint(`Approximate round trip: Min=${Math.min(...ts)}ms, Max=${Math.max(...ts)}ms, Avg=${Math.round(ts.reduce((a,b)=>a+b,0)/ts.length)}ms`);
+}
+function termKey(e){
+  const inp=document.getElementById('termInput');
+  if(e.key==='Enter'){
+    const v=inp.value;cmdHist.unshift(v);histIdx=-1;inp.value='';
+    termRun(v);
+  } else if(e.key==='ArrowUp'){
+    histIdx=Math.min(histIdx+1,cmdHist.length-1);
+    inp.value=cmdHist[histIdx]||'';e.preventDefault();
+  } else if(e.key==='ArrowDown'){
+    histIdx=Math.max(histIdx-1,-1);
+    inp.value=histIdx>=0?cmdHist[histIdx]:'';
+  }
+}
+
+// ──────────────── QUIZ ENGINE ────────────────
+const QUIZ=[
+  {q:'Apa kepanjangan dari IP dalam jaringan komputer?',opts:['Internet Protocol','Internal Process','Interface Port','Input Program'],ans:0,exp:'IP adalah singkatan dari Internet Protocol, protokol pengalamatan perangkat di jaringan.'},
+  {q:'Subnet mask 255.255.255.0 sama dengan notasi CIDR berapa?',opts:['/24','/16','/8','/32'],ans:0,exp:'/24 berarti 24 bit pertama untuk jaringan, sisanya 8 bit untuk host (256 alamat, 254 host).'},
+  {q:'Perintah apa yang digunakan untuk mengecek konektivitas ke host lain?',opts:['ping','ipconfig','nslookup','tracert'],ans:0,exp:'ping mengirim paket ICMP ke host tujuan dan menampilkan waktu balasan.'},
+  {q:'Apa fungsi DNS (Domain Name System)?',opts:['Mengubah nama domain ke alamat IP','Mengatur kecepatan jaringan','Menghubungkan dua switch','Menyimpan file di server'],ans:0,exp:'DNS menerjemahkan nama domain seperti google.com menjadi alamat IP yang bisa digunakan komputer.'},
+  {q:'Kabel UTP jenis straight digunakan untuk menghubungkan?',opts:['PC ke switch','Switch ke switch','Router ke router','PC ke PC'],ans:0,exp:'Kabel straight menghubungkan perangkat berbeda jenis, seperti PC ke switch atau switch ke router.'},
+  {q:'Berapa layer yang dimiliki model OSI?',opts:['7 layer','4 layer','5 layer','3 layer'],ans:0,exp:'Model OSI memiliki 7 layer: Physical, Data Link, Network, Transport, Session, Presentation, Application.'},
+  {q:'Protokol apa yang digunakan oleh perintah ping?',opts:['ICMP','TCP','UDP','HTTP'],ans:0,exp:'Ping menggunakan protokol ICMP (Internet Control Message Protocol) untuk mengirim echo request dan menerima echo reply.'},
+];
+const TROUBLE=[
+  {q:'PC tidak bisa ping gateway 192.168.1.1. Apa langkah troubleshooting pertama?',opts:['Cek kabel UTP dan lampu NIC','Langsung ganti router','Restart server','Hubungi ISP'],ans:0,exp:'Troubleshooting selalu dimulai dari lapisan fisik: pastikan kabel terpasang benar dan lampu NIC menyala.'},
+  {q:'Bisa ping IP tapi tidak bisa buka website. Apa yang kemungkinan bermasalah?',opts:['Konfigurasi DNS','Kabel UTP putus','NIC rusak','Alamat IP salah'],ans:0,exp:'Jika ping IP berhasil tapi website tidak bisa dibuka, berarti DNS tidak bisa me-resolve nama domain.'},
+  {q:'Perintah apa yang dipakai untuk melihat IP address di Windows?',opts:['ipconfig','ifconfig','netstat','arp'],ans:0,exp:'Di Windows, perintah ipconfig menampilkan konfigurasi jaringan termasuk IP address dan subnet mask.'},
+  {q:'IP Address 192.168.1.100/24 berada di jaringan berapa?',opts:['192.168.1.0','192.168.0.0','192.168.1.100','192.168.255.0'],ans:0,exp:'/24 = 255.255.255.0, jadi network address adalah 192.168.1.0 dan host range 192.168.1.1 - 192.168.1.254.'},
+];
+
+function buildQuiz(data, containerId){
+  const questions=sh(data).slice(0,Math.min(data.length,5));
+  const box=document.getElementById(containerId);
+  const state={ans:{},submitted:false};
+
+  function render(){
+    let html='';
+    if(state.submitted){
+      let score=0;
+      questions.forEach((q,i)=>{if(state.ans[i]!==undefined&&q.shuffled[state.ans[i]].orig===q.ans)score++;});
+      const pct=Math.round(score/questions.length*100);
+      const msg=score===questions.length?'🎉 Sempurna!':score>=questions.length/2?'👍 Bagus! Terus berlatih.':'💪 Pelajari lagi materinya.';
+      html+=`<span class="grade">${score}/${questions.length}</span><p>${msg}</p>`;
+      html+=`<div class="bar"><span class="bar-fill" id="${containerId}Bar"></span></div>`;
+      html+=`<button class="btn" onclick="buildQuiz(${containerId==='qbox'?'QUIZ':'TROUBLE'},'${containerId}')">Ulangi</button><hr style="border-color:var(--stone2);margin:16px 0">`;
+      setTimeout(()=>{const el=document.getElementById(containerId+'Bar');if(el)el.style.width=pct+'%';},50);
+    }
+    questions.forEach((q,i)=>{
+      html+=`<div style="margin-bottom:18px"><p style="color:var(--cyan);margin:0 0 6px">${i+1}. ${q.q}</p>`;
+      q.shuffled.forEach((opt,oi)=>{
+        let cls='opt';
+        if(state.submitted){
+          if(opt.orig===q.ans) cls+=' right';
+          else if(state.ans[i]===oi) cls+=' wrong';
+        }
+        const dis=state.submitted?'disabled':'';
+        html+=`<button class="${cls}" ${dis} onclick="quizAns('${containerId}',${i},${oi})">${opt.text}${state.submitted&&opt.orig===q.ans?' ✓':state.submitted&&state.ans[i]===oi&&opt.orig!==q.ans?' ✗':''}</button>`;
+      });
+      if(state.submitted) html+=`<p style="color:var(--torch);font-size:.88rem;margin:4px 0 0">💡 ${q.exp}</p>`;
+      html+='</div>';
+    });
+    const answered=Object.keys(state.ans).length;
+    if(!state.submitted){
+      html+=`<button class="btn" onclick="quizSubmit('${containerId}')" ${answered<questions.length?'disabled':''}>`;
+      html+=answered<questions.length?`Jawab semua soal (${answered}/${questions.length})`:'Kirim Jawaban';
+      html+='</button>';
+    }
+    box.innerHTML=html;
+    box._state=state;box._questions=questions;
+  }
+
+  // Shuffle options per question
+  questions.forEach(q=>{ q.shuffled=sh(q.opts.map((o,i)=>({text:o,orig:i}))); });
+  box._state=state;box._questions=questions;box._render=render;
+  render();
+}
+function quizAns(id,qi,oi){
+  const box=document.getElementById(id);
+  if(!box._state||box._state.submitted) return;
+  box._state.ans[qi]=oi;
+  box._render();
+}
+function quizSubmit(id){
+  const box=document.getElementById(id);
+  if(!box._state) return;
+  box._state.submitted=true;
+  box._render();
+}
+
+buildQuiz(QUIZ,'qbox');
+buildQuiz(TROUBLE,'tbox');
+
+// ──────────────── PORTAL ────────────────
+function copyLink(){
+  navigator.clipboard.writeText(window.location.href).then(()=>{
+    const el=document.getElementById('cpm');
+    el.textContent='Link disalin! ✓';
+    setTimeout(()=>el.textContent='Web ini jalan di Firefox, Chrome, Edge, Safari, atau browser apa pun.',2000);
+  });
+}
+</script>
+</body>
+</html>
