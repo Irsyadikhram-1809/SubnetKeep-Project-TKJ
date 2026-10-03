@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import './styles.css';
 import Gate from './components/Gate.jsx';
 import { Fire } from './components/Fire.jsx';
@@ -56,6 +56,117 @@ function SvgDefs() {
   );
 }
 
+/* ── Floating Particles — network data packets ── */
+function Particles() {
+  const particles = useMemo(() =>
+    Array.from({ length: 20 }, (_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      duration: `${8 + Math.random() * 12}s`,
+      delay: `${Math.random() * 10}s`,
+      drift: `${-40 + Math.random() * 80}px`,
+      size: `${2 + Math.random() * 2}px`,
+    })), []);
+
+  return (
+    <div className="particles-container" aria-hidden="true">
+      {particles.map(p => (
+        <div
+          key={p.id}
+          className="particle"
+          style={{
+            left: p.left,
+            width: p.size,
+            height: p.size,
+            animationDuration: p.duration,
+            animationDelay: p.delay,
+            '--drift': p.drift,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ── Scanline Overlay ── */
+function ScanlineOverlay() {
+  return <div className="scanline-overlay" aria-hidden="true" />;
+}
+
+/* ── Scroll Reveal Hook ── */
+function useScrollReveal(ready) {
+  useEffect(() => {
+    if (!ready) return;
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    // Small delay to let DOM mount
+    const timer = setTimeout(() => {
+      // Reveal sections
+      const sections = document.querySelectorAll('section');
+      sections.forEach(s => s.classList.add('reveal'));
+
+      // Reveal cards with stagger delay
+      const cards = document.querySelectorAll('.grid .card');
+      cards.forEach((c, i) => {
+        c.classList.add('reveal-card');
+        c.style.transitionDelay = `${i * 0.1}s`;
+      });
+
+      // Section headings
+      const headings = document.querySelectorAll('section h2');
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+      );
+
+      sections.forEach(s => observer.observe(s));
+      cards.forEach(c => observer.observe(c));
+      headings.forEach(h => observer.observe(h));
+
+      return () => observer.disconnect();
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [ready]);
+}
+
+/* ── Button Ripple Effect ── */
+function useButtonRipple(ready) {
+  const handleClick = useCallback((e) => {
+    const button = e.target.closest('button');
+    if (!button) return;
+
+    const rect = button.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = e.clientX - rect.left - size / 2;
+    const y = e.clientY - rect.top - size / 2;
+
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    ripple.style.width = ripple.style.height = `${size}px`;
+    ripple.style.left = `${x}px`;
+    ripple.style.top = `${y}px`;
+
+    button.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove());
+  }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [ready, handleClick]);
+}
 
 
 function LogoSlot() {
@@ -84,10 +195,18 @@ function LogoSlot() {
 export default function App() {
   const [ready, setReady] = useState(false);
 
+  // Activate scroll-reveal and button ripple when main content is ready
+  useScrollReveal(ready);
+  useButtonRipple(ready);
+
   return (
     <>
       {/* Always mounted — SVG symbols must stay in DOM */}
       <SvgDefs />
+
+      {/* Ambient effects — always visible */}
+      <Particles />
+      <ScanlineOverlay />
 
       {/* Gate screen */}
       {!ready && <Gate onDone={() => setReady(true)} />}
@@ -108,8 +227,8 @@ export default function App() {
           </nav>
 
           <main>
-            {/* HERO */}
-            <div className="hero">
+            {/* HERO — with entrance animation class */}
+            <div className="hero hero-enter">
               <div className="heroart">
                 <svg className="fig" role="img" aria-label="Siswa SMK membawa pedang">
                   <use href="#sis1" />

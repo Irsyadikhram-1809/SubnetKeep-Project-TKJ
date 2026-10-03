@@ -18,13 +18,18 @@ export default function Gate({ onDone }) {
     const delay = ms => new Promise(r => setTimeout(r, ms));
 
     (async () => {
+      /* Wait for entrance animations to mostly finish before typing */
+      await delay(1400);
       for (const line of BOOT_LINES) {
         if (cancelled) return;
-        await delay(180);
+        await delay(420);
         if (cancelled) return;
         setLines(prev => [...prev, line]);
       }
-      if (!cancelled) setShowBtn(true);
+      if (!cancelled) {
+        await delay(300);
+        setShowBtn(true);
+      }
     })();
 
     return () => { cancelled = true; };
