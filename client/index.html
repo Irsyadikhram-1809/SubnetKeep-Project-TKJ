@@ -553,9 +553,13 @@ footer{text-align:center;padding-top:60px;color:var(--mut);font-size:.85rem}
     <div class="card"><h3>Alamat IP</h3><p>Identitas perangkat di jaringan. IPv4 = 32 bit, ditulis 4 oktet, contoh <span class="ip">192.168.1.23</span>. Subnet mask (misal 255.255.255.0 atau /24) memisahkan bagian jaringan dan bagian host.</p></div>
     <div class="card"><h3>Ping</h3><p>Perintah untuk mengecek apakah host bisa dijangkau, memakai paket ICMP. Hasilnya menampilkan waktu balasan (ms) dan paket yang hilang.</p></div>
     <div class="card"><h3>Gateway &amp; DNS</h3><p>Gateway adalah pintu keluar jaringan lokal (biasanya router). DNS mengubah nama domain, misalnya google.com, menjadi alamat IP.</p></div>
-    <div class="card"><h3>Perangkat Keras</h3><p>NIC (kartu jaringan), kabel UTP + konektor RJ45, switch, router, access point, dan modem. Kabel straight untuk PC ke switch, crossover untuk perangkat sejenis.</p></div>
-    <div class="card"><h3>Perangkat Lunak</h3><p>Sistem operasi (Windows, Linux), driver NIC, tools jaringan (ping, ipconfig, nslookup, tracert), dan aplikasi monitoring seperti Wireshark.</p></div>
-    <div class="card"><h3>K3LH</h3><p>Keselamatan, Kesehatan Kerja, dan Lingkungan Hidup. Matikan &amp; cabut listrik sebelum membongkar, pakai gelang antistatik, rapikan kabel agar tidak membuat tersandung, dan buang limbah elektronik pada tempatnya.</p></div>
+    <div class="card"><h3>OSI Layer &amp; TCP/IP</h3><p>Model referensi untuk memahami komunikasi jaringan. OSI punya 7 layer (Physical, Data Link, Network, Transport, Session, Presentation, Application), sedangkan arsitektur TCP/IP memiliki 4 layer utama.</p></div>
+    <div class="card"><h3>DHCP</h3><p>Dynamic Host Configuration Protocol membagikan alamat IP, subnet, gateway, dan DNS otomatis ke perangkat (client) agar tidak perlu disetting satu per satu secara manual.</p></div>
+    <div class="card"><h3>Topologi Jaringan</h3><p>Bentuk rancangan jaringan (fisik/logik), seperti Bintang (Star), Cincin (Ring), Bus, atau Pohon (Tree). Topologi Star dengan sentral Switch paling umum dipakai saat ini.</p></div>
+    <div class="card"><h3>VLAN &amp; Routing</h3><p>VLAN memecah satu Switch menjadi beberapa jaringan logis yang terpisah (broadcast domain beda). Routing (via Router/L3 Switch) bertugas menghubungkan subnet-subnet yang berbeda tersebut.</p></div>
+    <div class="card"><h3>Perangkat Keras</h3><p>NIC (kartu jaringan), kabel UTP + RJ45, switch, router, access point, dan modem. Kabel straight untuk PC ke switch, crossover untuk menghubungkan PC ke PC.</p></div>
+    <div class="card"><h3>Keamanan &amp; Firewall</h3><p>Mencegah akses yang tidak sah. Firewall menyaring paket data berdasarkan port/IP. Contoh lain: menggunakan enkripsi WPA2/WPA3 untuk keamanan WiFi atau menggunakan VPN (Virtual Private Network).</p></div>
+    <div class="card"><h3>K3LH</h3><p>Keselamatan, Kesehatan Kerja, dan Lingkungan Hidup. Matikan perangkat listrik sebelum dibongkar, pakai gelang antistatik (ESD), rapikan kabel agar tidak membuat tersandung (cable management).</p></div>
   </div>
 </section>
 
@@ -773,16 +777,25 @@ const QUIZ=[
   {q:'Kabel UTP jenis straight digunakan untuk menghubungkan?',opts:['PC ke switch','Switch ke switch','Router ke router','PC ke PC'],ans:0,exp:'Kabel straight menghubungkan perangkat berbeda jenis, seperti PC ke switch atau switch ke router.'},
   {q:'Berapa layer yang dimiliki model OSI?',opts:['7 layer','4 layer','5 layer','3 layer'],ans:0,exp:'Model OSI memiliki 7 layer: Physical, Data Link, Network, Transport, Session, Presentation, Application.'},
   {q:'Protokol apa yang digunakan oleh perintah ping?',opts:['ICMP','TCP','UDP','HTTP'],ans:0,exp:'Ping menggunakan protokol ICMP (Internet Control Message Protocol) untuk mengirim echo request dan menerima echo reply.'},
+  {q:'Apa kepanjangan dari DHCP?',opts:['Dynamic Host Configuration Protocol','Desktop Host Control Protocol','Domain Host Configuration Protocol','Dynamic Hardware Control Protocol'],ans:0,exp:'DHCP berfungsi membagikan konfigurasi IP (alamat IP, subnet, gateway, DNS) secara otomatis kepada client di jaringan.'},
+  {q:'Manakah yang termasuk kelas B pada IP Address IPv4 (Private)?',opts:['172.16.x.x','192.168.x.x','10.x.x.x','127.0.0.1'],ans:0,exp:'IP private Kelas B berada di range 172.16.0.0 sampai 172.31.255.255.'},
+  {q:'Port default untuk layanan web HTTP yang tidak dienkripsi adalah?',opts:['80','21','22','443'],ans:0,exp:'HTTP menggunakan port 80. Untuk koneksi aman (HTTPS), port yang dipakai adalah 443.'},
+  {q:'Susunan kabel UTP jenis Crossover digunakan untuk?',opts:['Menghubungkan dua PC secara langsung','Menghubungkan PC ke Switch','Menghubungkan Switch ke Router','Semua jawaban benar'],ans:0,exp:'Kabel Crossover dipakai untuk menyambungkan dua perangkat yang sama tipenya, misal PC ke PC atau Switch ke Switch.'},
+  {q:'Lapisan OSI yang bertanggung jawab untuk pengalamatan logik (IP Address) dan routing adalah?',opts:['Network Layer','Data Link Layer','Transport Layer','Physical Layer'],ans:0,exp:'Network layer (Layer 3) bertanggung jawab atas routing dan identifikasi menggunakan IP address.'}
 ];
 const TROUBLE=[
-  {q:'PC tidak bisa ping gateway 192.168.1.1. Apa langkah troubleshooting pertama?',opts:['Cek kabel UTP dan lampu NIC','Langsung ganti router','Restart server','Hubungi ISP'],ans:0,exp:'Troubleshooting selalu dimulai dari lapisan fisik: pastikan kabel terpasang benar dan lampu NIC menyala.'},
-  {q:'Bisa ping IP tapi tidak bisa buka website. Apa yang kemungkinan bermasalah?',opts:['Konfigurasi DNS','Kabel UTP putus','NIC rusak','Alamat IP salah'],ans:0,exp:'Jika ping IP berhasil tapi website tidak bisa dibuka, berarti DNS tidak bisa me-resolve nama domain.'},
-  {q:'Perintah apa yang dipakai untuk melihat IP address di Windows?',opts:['ipconfig','ifconfig','netstat','arp'],ans:0,exp:'Di Windows, perintah ipconfig menampilkan konfigurasi jaringan termasuk IP address dan subnet mask.'},
-  {q:'IP Address 192.168.1.100/24 berada di jaringan berapa?',opts:['192.168.1.0','192.168.0.0','192.168.1.100','192.168.255.0'],ans:0,exp:'/24 = 255.255.255.0, jadi network address adalah 192.168.1.0 dan host range 192.168.1.1 - 192.168.1.254.'},
+  {q:'PC tidak bisa ping gateway 192.168.1.1. Apa langkah troubleshooting pertama?',opts:['Cek kabel UTP dan lampu indikator NIC (Layer 1)','Langsung ganti router','Restart server','Hubungi ISP'],ans:0,exp:'Troubleshooting idealnya dimulai dari bawah (Physical layer): pastikan kabel terpasang benar dan indikator link di kartu jaringan menyala.'},
+  {q:'Bisa ping IP gateway dan IP internet (8.8.8.8), tapi tidak bisa buka website dengan nama. Apa yang bermasalah?',opts:['Konfigurasi DNS','Kabel UTP putus','NIC rusak','Alamat IP lokal salah'],ans:0,exp:'Jika IP internet bisa diping tapi nama domain tidak, berarti komputer gagal me-resolve nama domain menjadi IP. Solusinya, cek konfigurasi DNS.'},
+  {q:'Perintah di terminal Windows untuk melihat IP address lengkap dengan MAC Address adalah?',opts:['ipconfig /all','ifconfig','netstat -a','ping -a'],ans:0,exp:'Di Windows, perintah "ipconfig /all" menampilkan detail lengkap konfigurasi jaringan, termasuk Physical Address (MAC Address).'},
+  {q:'IP Address 192.168.1.100/24 berada di jaringan (network ID) berapa?',opts:['192.168.1.0','192.168.0.0','192.168.1.100','192.168.255.0'],ans:0,exp:'Dengan /24 (255.255.255.0), 3 oktet pertama adalah network. Jadi network ID-nya adalah 192.168.1.0.'},
+  {q:'Client Windows mendapatkan IP address 169.254.x.x (APIPA). Apa arti dari status ini?',opts:['Klien gagal menghubungi DHCP Server','DNS server tujuan mati','IP address tersebut bentrok dengan komputer lain','Router mengalami overheat'],ans:0,exp:'Alamat 169.254.x.x adalah APIPA (Automatic Private IP Addressing) yang diberikan otomatis oleh OS jika komputer diset Dinamis namun DHCP Server tidak merespons.'},
+  {q:'Hasil ping ke sebuah server menampilkan pesan "Request timed out" (RTO). Artinya?',opts:['Host/Tujuan tidak merespons dalam waktu yang ditentukan','Jaringan lokal (kabel ke PC) terputus total','IP yang dituju salah format','Pesan ICMP dilarang oleh ISP'],ans:0,exp:'RTO berarti komputer pengirim sudah mengirim ICMP Request, namun sampai batas waktu (timeout) tidak ada ICMP Reply yang kembali. Bisa karena rute terputus, tujuan mati, atau diblokir firewall.'},
+  {q:'Hasil ping menunjukkan pesan "Destination host unreachable". Apa bedanya dengan RTO?',opts:['Router tidak memiliki rute (jalur) untuk menuju host tersebut','Host tujuan memblokir ping','Kabel dicabut sebelum ping','Switch utama sedang restart'],ans:0,exp:'"Unreachable" berarti proses routing gagal sejak awal karena jalur menuju network tujuan tidak diketahui (tidak ada rute). RTO berarti paket dikirim tapi balasan tidak kembali.'},
+  {q:'Sistem menampilkan pesan error "IP Address Conflict". Langkah apa yang tepat dilakukan?',opts:['Ubah IP komputer agar berbeda dengan yang lain, atau periksa DHCP Server','Mencabut kabel LAN selamanya agar tidak merusak switch','Mengganti kabel UTP dengan jenis crossover','Mengganti MAC address NIC secara permanen'],ans:0,exp:'IP Conflict terjadi saat 2 PC memakai 1 IP yang sama secara bersamaan di jaringan. Ganti IP statis dengan yang belum dipakai, atau cek rentang alokasi pada server DHCP.'}
 ];
 
 function buildQuiz(data, containerId){
-  const questions=sh(data).slice(0,Math.min(data.length,5));
+  const questions=sh(data).slice(0,Math.min(data.length,10));
   const box=document.getElementById(containerId);
   const state={ans:{},submitted:false};
 
