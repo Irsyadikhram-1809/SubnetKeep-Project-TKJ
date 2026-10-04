@@ -69,4 +69,8 @@ app.use(express.static(dist));
 app.get('*', (_, res) => res.sendFile(path.join(dist, 'index.html'), e => e && res.status(404).end()));
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`SubnetKeep API di http://localhost:${PORT}`));
+if (process.env.NODE_ENV !== 'production' || process.env.RUN_LOCAL) {
+  app.listen(PORT, () => console.log(`SubnetKeep API di http://localhost:${PORT}`));
+}
+
+export default app;
