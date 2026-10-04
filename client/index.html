@@ -422,7 +422,8 @@ footer{text-align:center;padding-top:60px;color:var(--mut);font-size:.85rem}
   nav a{padding:6px 8px}
   .grid{grid-template-columns:1fr}
   .term{height:250px}
-  .sc{display:none}
+  .sc{z-index:0}
+  .sc .fire{opacity:0.25;transform:scale(0.5);transform-origin:top center}
 }
 @media(max-width:480px){
   .fig{width:52px;height:86px}
