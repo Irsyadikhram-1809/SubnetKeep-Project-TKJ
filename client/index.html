@@ -228,6 +228,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
   transition:background .25s,border-color .25s,transform .2s,box-shadow .25s;
 }
 .opt:hover:not(:disabled){transform:translateX(4px);border-color:var(--cyan);box-shadow:0 0 12px rgba(62,240,208,.14)}
+.opt.selected{background:rgba(62,240,208,.12);border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 12px rgba(62,240,208,.14);transform:translateX(4px)}
 .opt.right{
   background:#1d5a3a;border-color:#5dff9a;
   box-shadow:0 0 14px rgba(42,107,255,.5);
@@ -408,12 +409,25 @@ small,.mut{color:var(--mut)}
 .slot-hero img{width:100%;height:100%;object-fit:contain}
 
 /* ═══════════ FOOTER ═══════════ */
-footer{text-align:center;padding-top:40px;color:var(--mut);font-size:.85rem}
+footer{text-align:center;padding-top:60px;color:var(--mut);font-size:.85rem}
+.credits{max-width:500px;margin:0 auto 20px;text-align:left;background:var(--stone);padding:16px;border:1px solid var(--stone2);border-left:3px solid var(--rune);border-radius:4px}
+.credits h3{color:var(--torch);font-size:1.1rem;margin-bottom:8px}
+.credits ul{list-style:none;padding:0;margin:0}
+.credits li{margin-bottom:6px}
+.credits li strong{color:var(--tx)}
+.credits li span{display:block;color:var(--mut);font-size:.8rem}
 
+@media(max-width:768px){
+  nav{padding:8px;font-size:.85rem}
+  nav a{padding:6px 8px}
+  .grid{grid-template-columns:1fr}
+  .term{height:250px}
+}
 @media(max-width:480px){
   .fig{width:52px;height:86px}
   .logos-hero svg,.slot-hero{width:76px;height:76px}
   .heroart{gap:6px}
+  .hero h1{font-size:2.2rem}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -599,7 +613,15 @@ footer{text-align:center;padding-top:40px;color:var(--mut);font-size:.85rem}
   </div>
 </section>
 
-<footer><small>SubnetKeep · Dibuat oleh siswa/siswi SMK kelas 11 TKJ 3, SMKN 6 Balikpapan.<br>Taklukkan jaringan, satu ping per langkah.</small></footer>
+<footer>
+  <div class="credits reveal">
+    <h3>Tim Penyusun</h3>
+    <ul>
+      <li><strong>Nur Alfian</strong><span>Prompt Engineer Visual, Manager Prompt Engineer, Teks Prompt dan lainnya</span></li>
+    </ul>
+  </div>
+  <small>SubnetKeep · Dibuat oleh siswa/siswi SMK kelas 11 TKJ 3, SMKN 6 Balikpapan.<br>Taklukkan jaringan, satu ping per langkah.</small>
+</footer>
 </main>
 
 <script>
@@ -781,6 +803,8 @@ function buildQuiz(data, containerId){
         if(state.submitted){
           if(opt.orig===q.ans) cls+=' right';
           else if(state.ans[i]===oi) cls+=' wrong';
+        } else {
+          if(state.ans[i]===oi) cls+=' selected';
         }
         const dis=state.submitted?'disabled':'';
         html+=`<button class="${cls}" ${dis} onclick="quizAns('${containerId}',${i},${oi})">${opt.text}${state.submitted&&opt.orig===q.ans?' ✓':state.submitted&&state.ans[i]===oi&&opt.orig!==q.ans?' ✗':''}</button>`;
