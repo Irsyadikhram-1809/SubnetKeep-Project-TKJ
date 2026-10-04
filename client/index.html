@@ -914,6 +914,7 @@ document.getElementById('enterBtn').addEventListener('click',()=>{
       ...document.querySelectorAll('section'),
       ...document.querySelectorAll('.grid .card'),
       ...document.querySelectorAll('section h2'),
+      ...document.querySelectorAll('.credits.reveal'),
     ];
     const obs=new IntersectionObserver(entries=>{
       entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('in'); obs.unobserve(en.target); } });
